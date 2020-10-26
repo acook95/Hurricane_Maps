@@ -77,7 +77,7 @@ ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
 
 ## usmaps Maps
 #rain_data <- floyd_rain %>% select(fips, precip)
-plot_usmap(data=rain_join, include = c("TX","OK","KS","LA", "AR",
+plot_usmap(data=floyd_data, include = c("TX","OK","KS","LA", "AR",
                        "MO", "IA","WI", "MI","IL","IN",
                        "OH", "KY", "TN", "AL", "MS",
                        "FL", "GA", "SC", "NC", "VA",
