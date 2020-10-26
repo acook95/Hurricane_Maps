@@ -26,9 +26,7 @@ ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
                          color="black", fill="gray90", size = .5 ) +
   geom_polygon(data=county_data, aes(x=long, y=lat, group=group),
                 color="gray70", fill="gray90",  size = .1, alpha = .1) +
-  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5) +
-  geom_polygon(data = floyd_rain)
-
+  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
 ##Allison-2001 Map
 allison_track <- hurr_tracks %>% filter(storm_id=="Allison-2001")
@@ -57,4 +55,4 @@ ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
 
 ## tmap Maps
 
-tm_shape()
+
