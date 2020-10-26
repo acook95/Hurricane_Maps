@@ -2,6 +2,7 @@ library(usmap)
 library(maps)
 library(tmap)
 library(tmaptools)
+library(dplyr)
 
 
 ## GGPlot2 Maps
@@ -19,13 +20,14 @@ county_data <- map_data('county', region = c('maine','vermont','new hampshire','
 
 ##Floyd-1999 Map
 floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
-floyd_rain <- rain %>% filter(storm_id=="Floyd-1999")
+floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") %>% select(fips, precip) %>% group_by(fips) %>% summarize(precip=mean(precip))
 
 ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
                          color="black", fill="gray90", size = .5 ) +
   geom_polygon(data=county_data, aes(x=long, y=lat, group=group),
                 color="gray70", fill="gray90",  size = .1, alpha = .1) +
-  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
+  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5) +
+  geom_polygon(data = floyd_rain)
 
 
 ##Allison-2001 Map
