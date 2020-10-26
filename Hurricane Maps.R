@@ -26,9 +26,10 @@ county_data <- map_data('county', region = c('maine','vermont','new hampshire','
 #filter data
 floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
 floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") %>% select(fips, precip) %>% group_by(fips) %>% summarize(precip=mean(precip)) %>% rename(FIPS=fips)
-as.numeric(floyd_rain$FIPS)
+floyd_rain$FIPS <- as.numeric(floyd_rain$FIPS)
 
 rain_join <- left_join(Counties, floyd_rain)
+rain_join <- rain_join %>% filter(is.na(precip)==FALSE)
 
 
 #plotting
