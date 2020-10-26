@@ -29,7 +29,7 @@ floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") %>% select(fips, precip) %
 floyd_rain$FIPS <- as.numeric(floyd_rain$FIPS)
 
 rain_join <- left_join(Counties, floyd_rain)
-rain_join <- rain_join %>% filter(is.na(precip)==FALSE)
+rain_join <- rain_join %>% filter(is.na(precip)==FALSE) %>% rename(fips=FIPS)
 
 
 #plotting
@@ -37,7 +37,9 @@ ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
                          color="black", fill="gray90", size = .5 ) +
   geom_polygon(data=county_data, aes(x=long, y=lat, group=group),
                 color="gray70", fill="gray90",  size = .1, alpha = .1) +
-  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
+  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5) 
+
+
 
 
 ##Allison-2001 Map
@@ -56,17 +58,17 @@ ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
 
 
 
-# ## usmaps Maps
-# rain_data <- floyd_rain %>% select(fips, precip)
-# plot_usmap(include = c("TX","OK","KS","LA", "AR", 
-#                        "MO", "IA","WI", "MI","IL","IN", 
-#                        "OH", "KY", "TN", "AL", "MS",
-#                        "FL", "GA", "SC", "NC", "VA",
-#                        "WV", "MD", "DE", "PA", "NJ", 
-#                        "NY", "CT", "RI", "MA", "VT","NH", "ME"), 
-#            regions="counties", color = "gray57") 
-# 
-# plot_usmap(regions="counties", data = rain_data, values = precip)
+## usmaps Maps
+#rain_data <- floyd_rain %>% select(fips, precip)
+plot_usmap(data=rain_join, include = c("TX","OK","KS","LA", "AR",
+                       "MO", "IA","WI", "MI","IL","IN",
+                       "OH", "KY", "TN", "AL", "MS",
+                       "FL", "GA", "SC", "NC", "VA",
+                       "WV", "MD", "DE", "PA", "NJ",
+                       "NY", "CT", "RI", "MA", "VT","NH", "ME"),
+           regions="counties", values = "precip")
+
+#plot_usmap(regions="counties", data = rain_data, values = precip)
 
 
 ## tmap Maps
