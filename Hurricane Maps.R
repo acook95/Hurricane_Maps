@@ -4,6 +4,9 @@ library(tmap)
 library(tmaptools)
 library(dplyr)
 
+Counties <- read_csv("Counties.csv")
+States <- read_csv("States.csv")
+
 
 ## GGPlot2 Maps
 state_data <- map_data('state', region = c('maine','vermont','new hampshire','new york', 'massachusetts','rhode island',
@@ -19,19 +22,31 @@ county_data <- map_data('county', region = c('maine','vermont','new hampshire','
 
 
 ##Floyd-1999 Map
-floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
-floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") %>% select(fips, precip) %>% group_by(fips) %>% summarize(precip=mean(precip))
 
+#filter data
+floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
+floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") %>% select(fips, precip) %>% group_by(fips) %>% summarize(precip=mean(precip)) %>% rename(FIPS=fips)
+as.numeric(floyd_rain$FIPS)
+
+rain_join <- left_join(Counties, floyd_rain)
+
+
+#plotting
 ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
                          color="black", fill="gray90", size = .5 ) +
   geom_polygon(data=county_data, aes(x=long, y=lat, group=group),
                 color="gray70", fill="gray90",  size = .1, alpha = .1) +
   geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
+
 ##Allison-2001 Map
+
+#filter data
 allison_track <- hurr_tracks %>% filter(storm_id=="Allison-2001")
 allison_rain <- rain %>% filter(storm_id=="Allison-2001")
 
+
+#plotting
 ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
                         color="black", fill="gray90", size = .5 ) +
   geom_polygon(data=county_data, aes(x=long, y=lat, group=group),
