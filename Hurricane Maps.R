@@ -3,6 +3,11 @@ library(maps)
 library(tmap)
 library(tmaptools)
 library(dplyr)
+library(hurricaneexposure)
+library(hurricaneexposuredata)
+library(tidyverse)
+library(tidyr)
+library(drat)
 
 Counties <- read_csv("Counties.csv")
 States <- read_csv("States.csv")
@@ -27,16 +32,17 @@ county_data <- map_data('county', region = c('maine','vermont','new hampshire','
 
 ##Floyd-1999 Map
 
-#filter data
+#filter data for Floyd-1999 and join two datasets together
 floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
 floyd_rain <- rain %>% filter(storm_id=="Floyd-1999")
 floyd_data <- left_join(floyd_track, floyd_rain)
 
-#floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") %>% select(fips, precip) %>% group_by(fips) %>% summarize(precip=mean(precip)) %>% rename(FIPS=fips)
-floyd_rain$FIPS <- as.numeric(floyd_rain$FIPS)
 
-rain_join <- left_join(Counties, floyd_rain)
-rain_join <- rain_join %>% filter(is.na(precip)==FALSE) %>% rename(fips=FIPS)
+## Experimenting--ignore this chunk
+#floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") %>% select(fips, precip) %>% group_by(fips) %>% summarize(precip=mean(precip)) %>% rename(FIPS=fips)
+#floyd_rain$FIPS <- as.numeric(floyd_rain$FIPS)
+#rain_join <- left_join(Counties, floyd_rain)
+#rain_join <- rain_join %>% filter(is.na(precip)==FALSE) %>% rename(fips=FIPS)
 
 
 #plotting
@@ -47,6 +53,7 @@ ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
   geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
   
 
+##experimenting--ignore this line
 #geom_polygon(data = floyd_data, aes(x=longitude, y=latitude, fill=precip))
 
 
@@ -54,10 +61,10 @@ ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
 
 ##Allison-2001 Map
 
-#filter data
+#filter data for Allison-2001 and join datasets together
 allison_track <- hurr_tracks %>% filter(storm_id=="Allison-2001")
 allison_rain <- rain %>% filter(storm_id=="Allison-2001")
-
+allison_data <- left_join(allison_track, allison_rain)
 
 #plotting
 ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
