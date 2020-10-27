@@ -1,13 +1,8 @@
-library(usmap)
-library(maps)
-library(tmap)
-library(tmaptools)
-library(dplyr)
-library(hurricaneexposure)
-library(hurricaneexposuredata)
-library(tidyverse)
-library(tidyr)
-library(drat)
+
+
+pacman::p_load("usmap", "maps", "tmap", "tmaptools", "dplyr", "hurricaneexposure",
+               "hurricaneexposuredata", "tidyverse", "tidyr", "drat")
+
 
 Counties <- read_csv("Counties.csv")
 States <- read_csv("States.csv")
@@ -19,10 +14,10 @@ data("rain")
 
 ## GGPlot2 Maps
 state_data <- map_data('state', region = c('maine','vermont','new hampshire','new york', 'massachusetts','rhode island',
-                        'delaware','connecticut','pennsylvania','new jersey','maryland','west virginia',
-                        'virginia','ohio','kentucky','north carolina','south carolina','georgia',
-                        'alabama','mississippi','florida','louisiana','texas','oklahoma','kansas',
-                        'arkansas','tennessee','indiana','wisconsin','illinois','michigan','missouri','iowa'))
+                                           'delaware','connecticut','pennsylvania','new jersey','maryland','west virginia',
+                                           'virginia','ohio','kentucky','north carolina','south carolina','georgia',
+                                           'alabama','mississippi','florida','louisiana','texas','oklahoma','kansas',
+                                           'arkansas','tennessee','indiana','wisconsin','illinois','michigan','missouri','iowa'))
 county_data <- map_data('county', region = c('maine','vermont','new hampshire','new york', 'massachusetts','rhode island',
                                             'delaware','connecticut','pennsylvania','new jersey','maryland','west virginia',
                                             'virginia','ohio','kentucky','north carolina','south carolina','georgia',
