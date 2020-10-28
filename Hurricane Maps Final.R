@@ -1,4 +1,3 @@
-
 library(usmap)
 library(maps)
 library(tmap)
@@ -11,36 +10,13 @@ library(tidyr)
 library(drat)
 library(magrittr)
 
-
-
-pacman::p_load("usmap", "maps", "tmap", "tmaptools", "dplyr", "hurricaneexposure",
-               "hurricaneexposuredata", "tidyverse", "tidyr", "drat")
-
-
-
 addRepo("geanders")
 data("hurr_tracks")
 data("rain")
 
 
 
-
 ################################################################################
-
-## GGPlot2 Maps
-state_data <- map_data('state', region = c('maine','vermont','new hampshire','new york', 'massachusetts','rhode island',
-                                           'delaware','connecticut','pennsylvania','new jersey','maryland','west virginia',
-                                           'virginia','ohio','kentucky','north carolina','south carolina','georgia',
-                                           'alabama','mississippi','florida','louisiana','texas','oklahoma','kansas',
-                                           'arkansas','tennessee','indiana','wisconsin','illinois','michigan','missouri','iowa'))
-county_data <- map_data('county', region = c('maine','vermont','new hampshire','new york', 'massachusetts','rhode island',
-                                            'delaware','connecticut','pennsylvania','new jersey','maryland','west virginia',
-                                            'virginia','ohio','kentucky','north carolina','south carolina','georgia',
-                                            'alabama','mississippi','florida','louisiana','texas','oklahoma','kansas',
-                                            'arkansas','tennessee','indiana','wisconsin','illinois','michigan','missouri','iowa'))
-
-
-
 ##Floyd-1999 Map
 
 #filter data for Floyd-1999
@@ -121,7 +97,7 @@ aa <- left_join(dall, fr3)
 
 
 #ggplot(aa, aes(x=long, y=lat, group=group, fill=rain)) + 
-  #geom_polygon()+coord_map()
+#geom_polygon()+coord_map()
 #+geom_path(floyd_track, aes(x=longitude,y=latitude))
 
 
@@ -137,7 +113,7 @@ aa <- left_join(dall, fr3)
 ggplot() +
   geom_polygon(data=aa, aes(x=long, y=lat, group=group, fill=rain)) +
   geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
-  
+
 
 
 ################################################################
@@ -182,5 +158,3 @@ ggplot() +
 
 
 ## tmap Maps
-
-

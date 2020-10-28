@@ -1,9 +1,7 @@
 
 
-library(tidyverse)
-library(drat)
-library(hurricaneexposuredata)
-library(hurricaneexposure)
+pacman::p_load("tidyverse", "drat", "hurricaneexposure", "hurricaneexposuredata", "usmap")
+
 
 addRepo("geanders")
 
@@ -42,7 +40,6 @@ map_rain_exposure(storm ="Allison-2001",
 
 
 
-library(usmap)
 
 plot_usmap(include = c("TX","OK","KS","LA", "AR", 
                        "MO", "IA","WI", "MI","IL","IN", 
