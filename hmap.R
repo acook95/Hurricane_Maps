@@ -85,6 +85,7 @@ county_data<-read.csv("https://www.ers.usda.gov/webdocs/DataFiles/48747/PovertyE
 states <- plot_usmap("states", 
                      color = "red",
                      fill = alpha(0.01)) #this parameter is necessary to get counties to show on top of states
+
 counties <- plot_usmap(data = county_data, 
                        values = "PCTPOVALL_2018",
                        color = "black",
