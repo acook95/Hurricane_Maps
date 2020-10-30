@@ -91,10 +91,14 @@ p
 
 
 fr3 <- as.data.frame(fr)
+for (i in 1:dim(fr3)[1]){
+  fr3$rain[i] <- fr3$rain[i]%/%25
+}
+fr3$rain <- ordered(fr3$rain,labels = c("[0,25]","(25,50]","(50,75]","(75,100]","(100,125]","(125,150]","(150,175]","(175,200]","(200,220]"))
 fr3$fips <- as.numeric(fr3$fips)
 
 aa <- left_join(dall, fr3)
-
+aa <- na.omit(aa)
 
 #ggplot(aa, aes(x=long, y=lat, group=group, fill=rain)) + 
 #geom_polygon()+coord_map()
@@ -112,6 +116,10 @@ aa <- left_join(dall, fr3)
 #plotting
 ggplot() +
   geom_polygon(data=aa, aes(x=long, y=lat, group=group, fill=rain)) +
+  scale_fill_brewer(palette = "Blues", name = "Rainfall(mm)")+
+  labs(title = "Floyd-1999")+
+  theme(plot.title = element_text(face = "bold", size =14, hjust = 0.5)) +
+  theme(legend.position = "right") +
   geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
 
@@ -127,10 +135,17 @@ allison_rain <- rain %>% filter(storm_id=="Allison-2001")
 allison_rain %>% group_by(fips) %>% summarise(rain = sum(precip)) -> ar
 
 ar3 <- as.data.frame(ar)
+for (i in 1:dim(ar3)[1]){
+  if (ar3$rain[i] < 175){
+    ar3$rain[i] <- 0
+  }
+  else {ar3$rain[i] <- 1}
+}
+ar3$rain <- ordered(ar3$rain, labels = c("Unexposed","Exposed"))
 ar3$fips <- as.numeric(ar3$fips)
 
 bb <- left_join(dall, ar3)
-
+bb <- na.omit(bb)
 #plotting
 # ggplot() + geom_polygon(data=state_data, aes(x=long, y=lat, group=group),
 #                         color="black", fill="gray90", size = .5 ) +
@@ -140,6 +155,10 @@ bb <- left_join(dall, ar3)
 
 ggplot() +
   geom_polygon(data=bb, aes(x=long, y=lat, group=group, fill=rain)) +
+  scale_fill_brewer(palette = "Blues", name = "Rainfall > 175mm")+
+  labs(title = "Allison-2001")+
+  theme(plot.title = element_text(face = "bold", size =14, hjust = 0.5)) +
+  theme(legend.position = "right") +
   geom_path(data=allison_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
 
