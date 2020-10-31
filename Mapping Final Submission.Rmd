@@ -5,7 +5,7 @@ date: "10/30/2020"
 output: pdf_document
 ---
 # GGplot2 Maps
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(maps)
 library(tmap)
 library(hurricaneexposuredata)
@@ -16,7 +16,7 @@ library(sf)
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 ##read data
 addRepo("geanders")
 data("hurr_tracks")
@@ -26,7 +26,7 @@ data(county.fips)
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 ##separate polygon column into state and county columns
 fips_data <- county.fips %>%
   as_tibble %>% 
@@ -38,7 +38,7 @@ all_data <- map_data("county") %>%
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 ##map only the states needed
 mp_states <- c("texas", "oklahoma", "kansas",
                "iowa", "missouri", "arkansas", "louisiana",
@@ -59,7 +59,7 @@ all_data  %<>% filter(region %in% mp_states)
 ```
 
 ## Floyd-1999
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #filter data for Floyd-1999
 floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
 floyd_rain <- rain %>% filter(storm_id=="Floyd-1999")
@@ -69,7 +69,7 @@ fr <- floyd_rain %>% group_by(fips) %>% summarise(rain = sum(precip))
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # code added from group review
 fr2 <- as.data.frame(fr)
 for (i in 1:dim(fr2)[1]){
@@ -81,7 +81,7 @@ fr2$rain <- ordered(fr2$rain,labels = c("[0,25]","(25,50]","(50,75]","(75,100]",
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # join rain data with all data
 fr2$fips <- as.numeric(fr2$fips)
 aa <- left_join(all_data, fr2)
@@ -89,7 +89,7 @@ aa <- na.omit(aa)
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 ##Floyd-1999 Map (ggplot2)
 ggplot() +
   geom_polygon(data=aa, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
@@ -101,7 +101,7 @@ ggplot() +
 ```
 
 ## Allison-2001
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #filter data for Allison-2001
 allison_track <- hurr_tracks %>% filter(storm_id=="Allison-2001")
 allison_rain <- rain %>% filter(storm_id=="Allison-2001")
@@ -111,7 +111,7 @@ ar <- allison_rain %>% group_by(fips) %>% summarise(rain = sum(precip))
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # code added from group review
 ar2 <- as.data.frame(ar)
 for (i in 1:dim(ar2)[1]){
@@ -131,7 +131,7 @@ bb <- na.omit(bb)
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Allison map (ggplot2)
 ggplot() +
   geom_polygon(data=bb, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
@@ -143,7 +143,7 @@ ggplot() +
 ```
 
 # Tmap Maps
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # create shape file for counties
 tcounties <- st_as_sf(maps::map('county',mp_states,plot=F,fill=T))
 
@@ -152,7 +152,7 @@ tm_shape(tcounties) + tm_polygons()
 ```
 
 ## Floyd-1999
-```{r, echo=FALSE}
+```{r, message=FALSE, warning=FALSE}
 # join datasets together with the shape file
 t_rain <- left_join(fr2, county.fips)
 t_rain <- rename(t_rain, ID = polyname)
@@ -163,7 +163,7 @@ t_all <- left_join(tcounties, t_rain)
 ```
 
 ## Allison-2001
-```{r, echo=FALSE}
+```{r, message=FALSE, warning=FALSE}
 # join datasets together with the shape file
 a_rain <- left_join(ar2, county.fips)
 a_rain <- rename(a_rain, ID = polyname)
