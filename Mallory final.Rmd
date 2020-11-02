@@ -42,10 +42,18 @@ states <- map_data('state', region = mp_states)
 
 ```
 
-### Calculate total rain/fip
+### Calculate total rain/fip, then make rain variable categorical (9 levels for FLoyd, 2 levels for Allison)
 
 ```{r}
 floyd_rain %<>% group_by(fips) %>% summarise(rain = sum(precip), .groups="drop")
+floyd_rain %<>% as.data.frame()
+for (i in 1:dim(floyd_rain)[1]){
+  floyd_rain$rain[i] <- floyd_rain$rain[i]%/%25
+}
+floyd_rain$rain <- ordered(floyd_rain$rain,labels = c("[0,25]","(25,50]","(50,75]",
+                                               "(75,100]","(100,125]","(125,150]",
+                                               "(150,175]","(175,200]","(200,220]"))
+
 allison_rain %<>% group_by(fips) %>% summarise(rain = sum(precip), .groups="drop")
 ```
 
@@ -59,6 +67,7 @@ county <- left_join(county.longlat,county.fips, by = c("region", "subregion"))
 #second make "fips" numeric so: "county" and "xxx_rain" can be joined
 floyd_rain$fips <- as.numeric(floyd_rain$fips)
 floyd_rain <- left_join(floyd_rain, county, by = "fips")
+floyd_rain %<>% na.omit()
 allison_rain$fips <- as.numeric(allison_rain$fips)
 allison_rain <- left_join(allison_rain, county, by = "fips")
 ```
@@ -66,10 +75,27 @@ allison_rain <- left_join(allison_rain, county, by = "fips")
 ### Now plot the data (first the rain, then the states, then the track) and format the graph
 
 ggplot() +
-  geom_polygon(data=floyd_rain, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
-  geom_polygon(data=states, aes(x=long, y=lat, group=group), alpha=0, color="red")
-  
+  geom_polygon(data=floyd_rain, aes(x=long, y=lat, group=group, fill=rain), color="grey", size=0.05, alpha=.5) +
+  scale_fill_brewer(palette="Blues") +
+  geom_polygon(data=states, aes(x=long, y=lat, group=group), fill="transparent", color="black", size=0.1) +
+  labs(title="Floyd-1999") +
+  theme_void() +
+  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
+
+
+
+#aarg, can't get the gradient to match the example 
+
 ggplot() +
   geom_polygon(data=allison_rain, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05)
   
   
+RainFloydPlot <- ggplot() + 
+  geom_polygon(data=MainStates, aes(x=long, y=lat, group=group),colour="black",fill="white") + 
+  
+  geom_polygon(data=RainFloyd,aes(x=long,y=lat,group=group,fill=rain_cut),colour="transparent")+
+  
+  geom_path(data=TrackFloyd,aes(longitude, latitude),color="orange")+
+  
+  xlim(min(MainStates$long),max(MainStates$long)) + 
+  ylim(min(MainStates$lat),max(MainStates$lat))
