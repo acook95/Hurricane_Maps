@@ -7,5 +7,69 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-pacman::p_load("maps","tmap","hurricaneexposuredata","tidyverse","drat", "magrittr", "sf")
+pacman::p_load("maps","tmap","hurricaneexposuredata","tidyverse","drat", "magrittr", "sf", "dplyr")
 ```
+
+### Read in all the data
+
+```{r}
+addRepo("geanders")
+data("hurr_tracks")
+data("rain")
+county.longlat <- map_data("county")   
+data(county.fips)
+
+floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
+floyd_rain <- rain %>% filter(storm_id=="Floyd-1999")
+
+allison_track <- hurr_tracks %>% filter(storm_id=="Allison-2001")
+allison_rain <- rain %>% filter(storm_id=="Allison-2001")
+
+mp_states <- c("texas", "oklahoma", "kansas",
+               "iowa", "missouri", "arkansas", "louisiana",
+               "alabama", "mississippi", "georgia", "florida",
+               "tennessee","kentucky", "indiana", 
+               "wisconsin", "michigan", "illinois",
+               "ohio", "west virginia", "pennsylvania",
+               "south carolina", "north carolina", 
+               "virginia", "delaware", "maryland",
+               "new jersey", "district of columbia", 
+               "new york", "connecticut", "rhode island",
+               "massachusetts", "vermont", "new hampshire",
+               "maine")
+
+states <- map_data('state', region = mp_states)
+
+```
+
+### Calculate total rain/fip
+
+```{r}
+floyd_rain %<>% group_by(fips) %>% summarise(rain = sum(precip), .groups="drop")
+allison_rain %<>% group_by(fips) %>% summarise(rain = sum(precip), .groups="drop")
+```
+
+### Join files to get a single file with long, lat, rain (which will be used to plot the data)
+
+```{r}
+#first split "polyname" into "region" and "subregion" so: county.fips and county.longlat can be joined
+county.fips %<>%
+  separate(polyname, c("region", "subregion"), "," )
+county <- left_join(county.longlat,county.fips, by = c("region", "subregion"))
+#second make "fips" numeric so: "county" and "xxx_rain" can be joined
+floyd_rain$fips <- as.numeric(floyd_rain$fips)
+floyd_rain <- left_join(floyd_rain, county, by = "fips")
+allison_rain$fips <- as.numeric(allison_rain$fips)
+allison_rain <- left_join(allison_rain, county, by = "fips")
+```
+
+### Now plot the data (first the rain, then the states, then the track) and format the graph
+
+ggplot() +
+  geom_polygon(data=floyd_rain, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
+  geom_polygon(data=states, aes(x=long, y=lat, group=group), alpha=0, color="red")
+  
+ggplot() +
+  geom_polygon(data=allison_rain, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05)
+  
+  
