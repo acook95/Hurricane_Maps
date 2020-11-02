@@ -1,0 +1,11 @@
+---
+title: "HurricanMaps"
+author: "Bruce Mallory"
+date: "11/2/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load("maps","tmap","hurricaneexposuredata","tidyverse","drat", "magrittr", "sf")
+```
