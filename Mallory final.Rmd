@@ -85,18 +85,22 @@ allison_rain <- left_join(allison_rain, county, by = "fips")
 ```{r}
 ggplot() +
   geom_polygon(data=floyd_rain, aes(x=long, y=lat, group=group, fill=rain), color="grey", size=0.05, alpha=.5) +
-  scale_fill_brewer(palette="Blues") +
+  scale_fill_brewer(name="Rainfall (mm)", palette="Blues") +
   geom_polygon(data=states, aes(x=long, y=lat, group=group), fill="transparent", color="black", size=0.1) +
   labs(title="Floyd-1999") +
-  theme_void() +
+  theme_minimal() +
+  labs(x="", y="") +
+  theme(plot.title = element_text(hjust = 0.5), element_line(size = 0), axis.text =element_blank()) +
   geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
 ggplot() +
   geom_polygon(data=allison_rain, aes(x=long, y=lat, group=group, fill=rain), color="grey", size=0.05, alpha=.5) +
-  scale_fill_brewer(palette="Blues") +
+  scale_fill_brewer(name="Rain > 175mm", palette="Blues") +
   geom_polygon(data=states, aes(x=long, y=lat, group=group), fill="transparent", color="black", size=0.1) +
-  labs(title="Allison-1999") +
-  theme_void() +
+  ggtitle("Allison-2001")  +
+  theme_minimal() +
+  labs(x="", y="") +
+  theme(plot.title = element_text(hjust = 0.5), element_line(size = 0), axis.text =element_blank()) +
   geom_path(data=allison_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
 ```
