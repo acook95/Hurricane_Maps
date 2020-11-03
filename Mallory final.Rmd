@@ -104,3 +104,24 @@ ggplot() +
   geom_path(data=allison_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
 ```
+### AND try the same thing using tmap
+
+```{r}
+
+tcounties <- st_as_sf(maps::map('county',mp_states,plot=F,fill=T))
+tm_shape(tcounties) + tm_polygons()
+
+# Floyd
+t_rain <- left_join(fr2, county.fips)
+t_rain <- rename(t_rain, ID = polyname)
+
+t_all <- left_join(tcounties, t_rain)
+#tm_shape(t_all) + tm_polygons(col=rain, palette = "Blues")
+
+
+# Allison
+a_rain <- left_join(ar2, county.fips)
+a_rain <- rename(a_rain, ID = polyname)
+a_all <- left_join(tcounties, a_rain)
+
+```
