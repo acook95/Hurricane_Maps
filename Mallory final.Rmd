@@ -19,8 +19,8 @@ data("rain")
 county.longlat <- map_data("county")   
 data(county.fips)
 
-floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
-floyd_rain <- rain %>% filter(storm_id=="Floyd-1999")
+floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999") %>% filter(longitude <= -65) %>% filter(latitude >= 23)
+floyd_rain <- rain %>% filter(storm_id=="Floyd-1999") 
 
 allison_track <- hurr_tracks %>% filter(storm_id=="Allison-2001")
 allison_rain <- rain %>% filter(storm_id=="Allison-2001")
@@ -55,6 +55,14 @@ floyd_rain$rain <- ordered(floyd_rain$rain,labels = c("[0,25]","(25,50]","(50,75
                                                "(150,175]","(175,200]","(200,220]"))
 
 allison_rain %<>% group_by(fips) %>% summarise(rain = sum(precip), .groups="drop")
+allison_rain %<>% as.data.frame()
+for (i in 1:dim(allison_rain)[1]){
+  if (allison_rain$rain[i] < 175){
+    allison_rain$rain[i] <- 0
+  }
+  else {allison_rain$rain[i] <- 1}
+}
+allison_rain$rain <- ordered(allison_rain$rain, labels = c("Unexposed","Exposed"))
 ```
 
 ### Join files to get a single file with long, lat, rain (which will be used to plot the data)
@@ -74,6 +82,7 @@ allison_rain <- left_join(allison_rain, county, by = "fips")
 
 ### Now plot the data (first the rain, then the states, then the track) and format the graph
 
+```{r}
 ggplot() +
   geom_polygon(data=floyd_rain, aes(x=long, y=lat, group=group, fill=rain), color="grey", size=0.05, alpha=.5) +
   scale_fill_brewer(palette="Blues") +
@@ -82,20 +91,12 @@ ggplot() +
   theme_void() +
   geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
 
-
-
-#aarg, can't get the gradient to match the example 
-
 ggplot() +
-  geom_polygon(data=allison_rain, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05)
-  
-  
-RainFloydPlot <- ggplot() + 
-  geom_polygon(data=MainStates, aes(x=long, y=lat, group=group),colour="black",fill="white") + 
-  
-  geom_polygon(data=RainFloyd,aes(x=long,y=lat,group=group,fill=rain_cut),colour="transparent")+
-  
-  geom_path(data=TrackFloyd,aes(longitude, latitude),color="orange")+
-  
-  xlim(min(MainStates$long),max(MainStates$long)) + 
-  ylim(min(MainStates$lat),max(MainStates$lat))
+  geom_polygon(data=allison_rain, aes(x=long, y=lat, group=group, fill=rain), color="grey", size=0.05, alpha=.5) +
+  scale_fill_brewer(palette="Blues") +
+  geom_polygon(data=states, aes(x=long, y=lat, group=group), fill="transparent", color="black", size=0.1) +
+  labs(title="Allison-1999") +
+  theme_void() +
+  geom_path(data=allison_track, aes(x=longitude, y=latitude), color="red", size=0.5)
+
+```
