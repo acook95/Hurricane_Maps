@@ -107,21 +107,79 @@ ggplot() +
 ### AND try the same thing using tmap
 
 ```{r}
+```{r}
+## Transfer data into spatial version
+tMap <- st_as_sf(map("county",StatesInt,plot=F,fill=T))
 
-tcounties <- st_as_sf(maps::map('county',mp_states,plot=F,fill=T))
-tm_shape(tcounties) + tm_polygons()
+## Transfer RainFloyd into spatial format 
+tRainFloyd1 <- RainFloyd %>% 
+  select(region,subregion,rain_cut) %>% 
+  mutate(ID=str_c(region,subregion,sep = ",")) %>% 
+  select(ID,rain_cut) %>% 
+  rename(`Rainfall(mm)`=rain_cut)
 
-# Floyd
-t_rain <- left_join(fr2, county.fips)
-t_rain <- rename(t_rain, ID = polyname)
+tRainFloyd <- left_join(tMap,tRainFloyd1,by="ID")
 
-t_all <- left_join(tcounties, t_rain)
-#tm_shape(t_all) + tm_polygons(col=rain, palette = "Blues")
+## Transfer TrackFloyd into spatial format
+tTrackFloyd=cbind(TrackFloyd$longitude,TrackFloyd$latitude)%>%
+  Line() %>% Lines(ID='Floyd-1999') %>%
+  list() %>% SpatialLines()
+```
+
+#### 3.1.2 Making map
+```{r}
+tRainFloydPlot <- 
+tm_shape(tRainFloyd)+
+  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL,
+              col='Rainfall(mm)',style="cont",
+              title="Rainfall(mm)",
+              palette=cividis(n=7,direction=-1))+
+  tm_shape(tTrackFloyd) +
+  tm_lines(col='red')
+
+# Add title
+tRainFloydPlot + 
+  tm_layout(main.title='Floyd-1999',
+            main.title.position="center")
+```
 
 
-# Allison
-a_rain <- left_join(ar2, county.fips)
-a_rain <- rename(a_rain, ID = polyname)
-a_all <- left_join(tcounties, a_rain)
+
+### 3.2 Allison-2001
+
+#### 3.2.1 Data Organising
+```{r}
+## Transfer RainAllison into spatial format
+tRainAllison1 <- RainAllison %>% 
+  select(region,subregion,rain_cut) %>% 
+  mutate(ID=str_c(region,subregion,sep = ",")) %>% 
+  select(ID,rain_cut) %>% 
+  rename(`Rainfall > 175mm`=rain_cut)
+
+tRainAllison <- left_join(tMap,tRainAllison1,by="ID")
+
+# Transfer TrackFloyd into spatial format
+tTrackAllison=cbind(TrackAllison$longitude,TrackAllison$latitude) %>%
+  Line() %>% Lines(ID='Floyd-1999') %>%
+  list() %>% SpatialLines()
+```
+
+#### 3.2.2 Making map
+```{r}
+tRainAllisonPlot <- 
+tm_shape(tRainAllison)+
+  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL,
+              col='Rainfall > 175mm',style="cont",
+              title="Rainfall > 175mm",
+              palette=plasma(n=2,direction=-1))+
+  tm_shape(tTrackAllison) +
+  tm_lines(col='red')
+
+# Add title
+tRainAllisonPlot + 
+  tm_layout(main.title='Allison-2001',
+            main.title.position="center")
+```
+
 
 ```
