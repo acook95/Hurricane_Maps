@@ -74,11 +74,11 @@ allison_rain$rain <- ordered(allison_rain$rain, labels = c("Unexposed","Exposed"
 ### Join files to get a single file with long, lat, rain (which will be used to plot the data)
 
 ```{r}
-#first split "polyname" into "region" and "subregion" so: county.fips and county.longlat can be joined
+#(1) split "polyname" into "region" and "subregion" so: county.fips and county.longlat can be joined
 county.fips %<>%
   separate(polyname, c("region", "subregion"), "," )
 county <- left_join(county.longlat,county.fips, by = c("region", "subregion"))
-#second make "fips" numeric so: "county" and "xxx_rain" can be joined
+#(2) make "fips" numeric so: "county" and "xxx_rain" can be joined
 floyd_rain$fips <- as.numeric(floyd_rain$fips)
 floyd_rain %<>% na.omit()
 floyd_rain1 <- left_join(floyd_rain, county, by = "fips")
@@ -127,13 +127,11 @@ floyd_rain2 <- left_join(floyd_rain, county2)
 floyd_rain2 <- st_as_sf(floyd_rain2)
 
 tm_shape(states2) +
-  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL)
-
-tm_shape(county2) +
-  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL)
-
+  tm_borders(col="black", lwd=1) +
+  tm_layout(title="Floyd-1999", title.position = c("center", "top")) +
 tm_shape(floyd_rain2) +
-  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL)
+  tm_borders(col="grey",lwd=0.1) +
+  tm_fill("rain", id="fips", title = "Rain (mm)", palette = "Blues")
 
 
 tMap <- st_as_sf(map("county",states,plot=F,fill=T))

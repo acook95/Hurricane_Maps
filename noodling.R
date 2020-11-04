@@ -11,9 +11,13 @@ a <- filter(states2, STUSPS %in% states_tm)
 
 
 tm_shape(states2) +
-  tm_borders(col="black", lwd=0.5) +
+  tm_borders(col="black", lwd=1) +
+  tm_layout(title="Floyd-1999", title.position = c("center", "top")) +
 tm_shape(floyd_rain2) +
-  tm_polygons(col="grey",lwd=0.1, "rain", id="fips") +
+  tm_borders(col="grey",lwd=0.1) +
+  tm_fill("rain", id="fips", title = "Rain (mm)", palette = "Blues")
+
++
   tm_style_beaver(title = "Floyd-1999", title.position = c("center", "top"))
 
 
