@@ -39,7 +39,7 @@ mp_states <- c("texas", "oklahoma", "kansas",
                "new york", "connecticut", "rhode island",
                "massachusetts", "vermont", "new hampshire",
                "maine")
-states_tm <- c("TX", "OK", "KS", "IA", "MS", "AR", "LA", "AL", "MS", "GA", "FL",
+states_tm <- c("TX", "OK", "KS", "IA", "MO", "AR", "LA", "AL", "MS", "GA", "FL",
                "TN", "KY", "IN", "WI", "MI", "IL", "OH", "WV", "PA", "SC", "NC",
                "VA", "DE", "MD", "NJ", "DC", "NY", "CT", "RI", "MA", "VT", "NH",
                "ME")
@@ -80,8 +80,8 @@ county.fips %<>%
 county <- left_join(county.longlat,county.fips, by = c("region", "subregion"))
 #second make "fips" numeric so: "county" and "xxx_rain" can be joined
 floyd_rain$fips <- as.numeric(floyd_rain$fips)
-floyd_rain <- left_join(floyd_rain, county, by = "fips")
 floyd_rain %<>% na.omit()
+floyd_rain1 <- left_join(floyd_rain, county, by = "fips")
 allison_rain$fips <- as.numeric(allison_rain$fips)
 allison_rain <- left_join(allison_rain, county, by = "fips")
 ```
@@ -90,7 +90,7 @@ allison_rain <- left_join(allison_rain, county, by = "fips")
 
 ```{r}
 ggplot() +
-  geom_polygon(data=floyd_rain, aes(x=long, y=lat, group=group, fill=rain), color="grey", size=0.05, alpha=.5) +
+  geom_polygon(data=floyd_rain1, aes(x=long, y=lat, group=group, fill=rain), color="grey", size=0.05, alpha=.5) +
   scale_fill_brewer(name="Rainfall (mm)", palette="Blues") +
   geom_polygon(data=states, aes(x=long, y=lat, group=group), fill="transparent", color="black", size=0.1) +
   labs(title="Floyd-1999") +
@@ -116,15 +116,28 @@ ggplot() +
 ## Transfer data into spatial version
 
 states2 <- states(class="sf")
-county2 <- county(class="sf")
+county2 <- counties(class="sf")
 states2 %<>% filter(STUSPS %in% states_tm)
+county2 %<>% filter(STATEFP %in% states2$STATEFP)
 
-plot(st_geometry(states2))
+county2$fips <-as.numeric(county2$GEOID)
+#floyd_rain2 <- append_data(county2, floyd_rain, key.shp="fips", key.data="fips")
+floyd_rain2 <- left_join(floyd_rain, county2)
+
+floyd_rain2 <- st_as_sf(floyd_rain2)
+
+tm_shape(states2) +
+  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL)
+
+tm_shape(county2) +
+  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL)
+
+tm_shape(floyd_rain2) +
+  tm_polygons(border.col="white",lwd=0.1,colorNA=NULL)
+
 
 tMap <- st_as_sf(map("county",states,plot=F,fill=T))
 
-tm_shape(states2) +
-    tm_polygons("HPI")
 
 ## Transfer RainFloyd into spatial format 
 tRainFloyd1 <- RainFloyd %>% 
