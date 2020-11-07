@@ -4,7 +4,10 @@ author: "Anna Cook"
 date: "10/30/2020"
 output: pdf_document
 ---
-# GGplot2 Maps
+# Introduction
+
+
+## GGplot2 Maps
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(maps)
 library(tmap)

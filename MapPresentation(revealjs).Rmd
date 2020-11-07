@@ -1,0 +1,139 @@
+---
+title: "Hurricane Maps"
+author: "Anna Cook"
+date: "11/6/2020"
+output: 
+  revealjs::revealjs_presentation:
+    theme: sky
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(maps)
+library(hurricaneexposuredata)
+library(tidyverse)
+library(drat)
+library(magrittr)
+library(sf)
+library(readr)
+library(ggplot2)
+```
+#
+<h1>Introduction</h1>
+<p>The purpose of this assignment was to create maps showing the track and total rainfall for two different hurricanes: Hurricane Floyd, which occurred in 1999, and Hurricane Allison, which occurred in 2001. The data was collected from a github repository from the user <a href="https://github.com/geanders/hurricaneexposure">Geanders</a>.</p>
+
+<p>In order to map these hurricanes, the data first had to be cleaned, and several datasets had to be merged together. The process is described in the following slides.</p>
+
+# 
+<h1>Data Description</h1>
+<p>The data was first read into R from the github repository. The rainfall data and hurricane tracking data were in two separate datasets. These were filtered down to include only the hurricanes of interest. Then these datasets had to be merged with state and county mapping data from the "maps" R package. The state and county data was filtered to include only the states of interest. The final datasets can be previewed below. </p>
+
+
+##
+<h4>Tidy Dataset for Hurricane Floyd</h4>
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+addRepo("geanders")
+data("hurr_tracks")
+data("rain")
+county <- map_data("county")   
+data(county.fips)
+fips_data <- county.fips %>%
+  as_tibble %>% 
+  separate(polyname, c("region", "subregion"), "," )
+all_data <- map_data("county") %>% 
+  left_join(fips_data)
+mp_states <- c("texas", "oklahoma", "kansas",
+               "iowa", "missouri", "arkansas", "louisiana",
+               "alabama", "mississippi", "georgia", "florida",
+               "tennessee","kentucky", "indiana", 
+               "wisconsin", "michigan", "illinois",
+               "ohio", "west virginia", "pennsylvania",
+               "south carolina", "north carolina", 
+               "virginia", "delaware", "maryland",
+               "new jersey", "district of columbia", 
+               "new york", "connecticut", "rhode island",
+               "massachusetts", "vermont", "new hampshire",
+               "maine")
+state_data <- map_data('state', region = mp_states)
+all_data  %<>% filter(region %in% mp_states)
+floyd_track <- hurr_tracks %>% filter(storm_id=="Floyd-1999")
+floyd_rain <- rain %>% filter(storm_id=="Floyd-1999")
+fr <- floyd_rain %>% group_by(fips) %>% summarise(rain = sum(precip))
+fr2 <- as.data.frame(fr)
+for (i in 1:dim(fr2)[1]){
+  fr2$rain[i] <- fr2$rain[i]%/%25
+}
+fr2$rain <- ordered(fr2$rain,labels = c("[0,25]","(25,50]","(50,75]","(75,100]","(100,125]","(125,150]","(150,175]","(175,200]","(200,220]"))
+fr2$fips <- as.numeric(fr2$fips)
+aa <- left_join(all_data, fr2)
+aa <- na.omit(aa)
+head(aa, 10)
+```
+
+<h4>Tidy Dataset for Hurricane Allison</h4>
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+allison_track <- hurr_tracks %>% filter(storm_id=="Allison-2001")
+allison_rain <- rain %>% filter(storm_id=="Allison-2001")
+ar <- allison_rain %>% group_by(fips) %>% summarise(rain = sum(precip))
+ar2 <- as.data.frame(ar)
+for (i in 1:dim(ar2)[1]){
+  if (ar2$rain[i] < 175){
+    ar2$rain[i] <- 0
+  }
+  else {ar2$rain[i] <- 1}
+}
+ar2$rain <- ordered(ar2$rain, labels = c("Unexposed","Exposed"))
+ar2$fips <- as.numeric(ar2$fips)
+bb <- left_join(all_data, ar2)
+bb <- na.omit(bb)
+head(bb, 10)
+```
+
+#
+<h1>Maps</h1>
+<p>Once the data was cleaned, the next step was to map the data for each hurricane on two separate maps using the ggplot2 R package. These maps are shown below.</p>
+
+## 
+<h3>Floyd-1999 Map</h3>
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot() +
+  geom_polygon(data=aa, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
+  scale_fill_brewer(palette = "Blues", name = "Rainfall(mm)")+
+  labs(title = "Floyd-1999")+
+  theme(plot.title = element_text(face = "bold", size =14, hjust = 0.5)) +
+  theme(legend.position = "right") +
+  geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5)
+```
+
+##
+<h3>Allison-2001 Map</h3>
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot() +
+  geom_polygon(data=bb, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
+  scale_fill_brewer(palette = "Blues", name = "Rainfall > 175mm")+
+  labs(title = "Allison-2001")+
+  theme(plot.title = element_text(face = "bold", size =14, hjust = 0.5)) +
+  theme(legend.position = "right") +
+  geom_path(data=allison_track, aes(x=longitude, y=latitude), color="red", size=0.5)
+```
+
+#
+<h1>Discussion</h1>
+
+<p>These maps were produced using ggplot2, but similar maps can be created using the "usmaps," "tmap," or "leaflet" R packages. For the sake of simplicity, maps using these other packages were excluded from this presentation. Additionally, future work may aim to add more features to the plots, such as wind speeds or property damage.</p>
+
+# R Packages used
+<p>
+<ul>
+  <li>maps</li>
+  <li>hurricaneexposuredata</li>
+  <li>tidyverse</li>
+  <li>drat</li>
+  <li>magrittr</li>
+  <li>readr</li>
+  <li>ggplot2</li>
+</ul>
+</p>
