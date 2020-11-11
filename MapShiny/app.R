@@ -116,7 +116,7 @@ ggplot() +
 ui <- fluidPage(
     fluidRow(
         column(width = 6, class = "well",
-               h4("FLOYD-1999: Brush and double-click to zoom"),
+               h4("FLOYD-1999"),
                plotOutput("plot1", height = 300,
                           dblclick = "plot1_dblclick",
                           brush = brushOpts(
@@ -126,7 +126,7 @@ ui <- fluidPage(
                )
         ),
         column(width = 6, class = "well",
-               h4("ALLISON-2001: Brush and double-click to zoom"),
+               h4("ALLISON-2001"),
                plotOutput("plot2", height = 300,
                           dblclick = "plot2_dblclick",
                           brush = brushOpts(
@@ -136,7 +136,13 @@ ui <- fluidPage(
                           )
                    )
                    
-                   )
+                   ),
+    fluidRow(
+        column(width = 6,
+               textOutput("text1")),
+        column(width = 6,
+               textOutput("text2"))
+    )
                )
         
 
@@ -196,6 +202,10 @@ server <- function(input, output) {
             ranges2$y <- NULL
         }
     })
+    
+    output$text1 <- renderText("Brush and double-click to zoom. Double click again to reset.")
+    
+    output$text2 <- renderText("Brush and double-click to zoom. Double click again to reset.")
 }
 
 shinyApp(ui, server)
