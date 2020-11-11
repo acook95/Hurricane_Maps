@@ -1,11 +1,6 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
+
 #    http://shiny.rstudio.com/
-#
+# code for shiny app taken from: https://shiny.rstudio.com/gallery/plot-interaction-zoom.html
 
 library(shiny)
 library(maps)
@@ -118,42 +113,90 @@ ggplot() +
 
 
 #############################################################################
-
-# Define UI for application that draws a histogram
 ui <- fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
+    fluidRow(
+        column(width = 6, class = "well",
+               h4("FLOYD-1999: Brush and double-click to zoom"),
+               plotOutput("plot1", height = 300,
+                          dblclick = "plot1_dblclick",
+                          brush = brushOpts(
+                              id = "plot1_brush",
+                              resetOnNew = TRUE
+                          )
+               )
         ),
+        column(width = 6, class = "well",
+               h4("ALLISON-2001: Brush and double-click to zoom"),
+               plotOutput("plot2", height = 300,
+                          dblclick = "plot2_dblclick",
+                          brush = brushOpts(
+                              id = "plot2_brush",
+                              resetOnNew = TRUE
+                                     )
+                          )
+                   )
+                   
+                   )
+               )
+        
 
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    )
-)
-
-# Define server logic required to draw a histogram
 server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    
+    # -------------------------------------------------------------------
+    # Single zoomable plot (on left)
+    ranges <- reactiveValues(x = NULL, y = NULL)
+    
+    output$plot1 <- renderPlot({
+        ggplot() +
+            geom_polygon(data=aa, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
+            scale_fill_brewer(palette = "Blues", name = "Rainfall(mm)")+
+            labs(title = "Floyd-1999")+
+            theme(plot.title = element_text(face = "bold", size =14, hjust = 0.5)) +
+            theme(legend.position = "right") +
+            geom_path(data=floyd_track, aes(x=longitude, y=latitude), color="red", size=0.5) +
+            coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)
+    })
+    
+    # When a double-click happens, check if there's a brush on the plot.
+    # If so, zoom to the brush bounds; if not, reset the zoom.
+    observeEvent(input$plot1_dblclick, {
+        brush <- input$plot1_brush
+        if (!is.null(brush)) {
+            ranges$x <- c(brush$xmin, brush$xmax)
+            ranges$y <- c(brush$ymin, brush$ymax)
+            
+        } else {
+            ranges$x <- NULL
+            ranges$y <- NULL
+        }
+    })
+    ranges2 <- reactiveValues(x = NULL, y = NULL)
+    
+    output$plot2 <- renderPlot({
+        ggplot() +
+            geom_polygon(data=bb, aes(x=long, y=lat, group=group, fill=rain), color="black", size=0.05) +
+            scale_fill_brewer(palette = "Blues", name = "Rainfall > 175mm")+
+            labs(title = "Allison-2001")+
+            theme(plot.title = element_text(face = "bold", size =14, hjust = 0.5)) +
+            theme(legend.position = "right") +
+            geom_path(data=allison_track, aes(x=longitude, y=latitude), color="red", size=0.5) +
+            coord_cartesian(xlim = ranges2$x, ylim = ranges2$y, expand = FALSE)
+    })
+    
+    # When a double-click happens, check if there's a brush on the plot.
+    # If so, zoom to the brush bounds; if not, reset the zoom.
+    observeEvent(input$plot2_dblclick, {
+        brush <- input$plot2_brush
+        if (!is.null(brush)) {
+            ranges2$x <- c(brush$xmin, brush$xmax)
+            ranges2$y <- c(brush$ymin, brush$ymax)
+            
+        } else {
+            ranges2$x <- NULL
+            ranges2$y <- NULL
+        }
     })
 }
 
-# Run the application 
-shinyApp(ui = ui, server = server)
+shinyApp(ui, server)
+
