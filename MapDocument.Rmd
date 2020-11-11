@@ -20,7 +20,7 @@ library(ggplot2)
 <h1>Introduction</h1>
 <p>The purpose of this assignment was to create maps showing the track and total rainfall for two different hurricanes: Hurricane Floyd, which occurred in 1999, and Hurricane Allison, which occurred in 2001. The data was collected from a github repository from the user <a href="https://github.com/geanders/hurricaneexposure">Geanders</a> and the <a href="https://www.fema.gov/disasters/disaster-declarations">FEMA website</a>.</p>
 
-<p>In order to map these hurricanes, the data first had to be cleaned, and several datasets had to be merged together. The process is described briefly below.</p>
+<p>In order to map these hurricanes, the data first had to be cleaned, and several datasets had to be merged together. This process is described briefly below. Finally, a shiny application was created in order to further explore the maps. The shiny app can be viewed <a href="https://acook.shinyapps.io/MapShiny/">here</a>.</p>
 <br>
 <h1>Data Description</h1>
 <p>The data was first read into R from the github repository and the FEMA website. The rainfall data and hurricane tracking data were in two separate datasets. These were filtered down to include only the hurricanes of interest. Then these datasets had to be merged with state and county mapping data from the "maps" R package. The state and county data was filtered to include only the states of interest. The final datasets can be previewed below. </p>

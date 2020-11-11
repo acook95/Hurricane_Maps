@@ -1,0 +1,12 @@
+name: MapShiny
+title: MapShiny
+username:
+account: acook
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3206852
+bundleId: 3845397
+url: https://acook.shinyapps.io/MapShiny/
+when: 1605057911.50897
+asMultiple: FALSE
+asStatic: FALSE

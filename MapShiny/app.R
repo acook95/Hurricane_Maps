@@ -4,8 +4,8 @@
 
 library(shiny)
 library(maps)
-library(hurricaneexposuredata)
 library(tidyverse)
+library(hurricaneexposure)
 library(drat)
 library(magrittr)
 library(sf)
